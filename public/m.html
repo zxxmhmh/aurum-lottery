@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f4efe5" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>发码台 · 智学内部抽奖</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0B10'/%3E%3Ctext x='32' y='45' font-family='Songti SC,SimSun,serif' font-size='34' fill='%23D9B77C' text-anchor='middle'%3E%E6%99%BA%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/m.css" />
+</head>
+<body class="m-body">
+  <header class="m-head">
+    <div class="m-brand">
+      <span class="brand-mark">智</span>
+      <div class="m-brand-text">
+        <b>发码台</b>
+        <span id="who">—</span>
+      </div>
+    </div>
+    <button class="m-ghost-btn" id="auth-btn" type="button">退出</button>
+  </header>
+
+  <main class="m-main">
+    <section class="m-card" id="login-card" hidden>
+      <h2 class="m-card-title">工作人员登录</h2>
+      <p class="m-note">用管理员分配的账号登录，只显示你有权限的活动。</p>
+      <label class="m-label" for="login-account">账号</label>
+      <input class="m-input" id="login-account" autocomplete="username" autocapitalize="none" placeholder="账号" />
+      <label class="m-label" for="login-password">密码</label>
+      <input class="m-input" id="login-password" type="password" autocomplete="current-password" placeholder="密码" />
+      <button class="m-btn m-btn--primary" id="login-btn" type="button">登录</button>
+      <p class="m-error" id="login-error" hidden></p>
+    </section>
+
+    <section class="m-card" id="pwd-card" hidden>
+      <h2 class="m-card-title">先改初始密码</h2>
+      <p class="m-note">你的账号当前是初始密码（手机号后 6 位），改掉之后才能发码。</p>
+      <label class="m-label" for="pw-old">当前密码</label>
+      <input class="m-input" id="pw-old" type="password" autocomplete="current-password" placeholder="手机号后 6 位" />
+      <label class="m-label" for="pw-new">新密码（至少 6 位）</label>
+      <input class="m-input" id="pw-new" type="password" autocomplete="new-password" />
+      <label class="m-label" for="pw-new2">再输一次</label>
+      <input class="m-input" id="pw-new2" type="password" autocomplete="new-password" />
+      <button class="m-btn m-btn--primary" id="pw-save" type="button">保存并进入</button>
+      <p class="m-error" id="pw-error" hidden></p>
+    </section>
+
+    <section class="m-card" id="act-card" hidden>
+      <select class="m-select" id="act-select" aria-label="选择活动"></select>
+      <div class="m-stats">
+        <div class="m-stat"><b id="stat-free">—</b><span>剩余空码</span></div>
+        <div class="m-stat"><b id="stat-issued">—</b><span>已发出</span></div>
+        <div class="m-stat"><b id="stat-used">—</b><span>已开奖</span></div>
+      </div>
+    </section>
+
+    <section class="m-card" id="issue-card" hidden>
+      <h2 class="m-card-title">发一枚抽奖码</h2>
+      <label class="m-label" for="f-name">学员姓名 <i id="req-name" hidden>*</i></label>
+      <input class="m-input" id="f-name" maxlength="20" placeholder="张三" autocomplete="off" />
+      <label class="m-label" for="f-phone">手机号 <i id="req-phone" hidden>*</i></label>
+      <input class="m-input" id="f-phone" inputmode="numeric" maxlength="11" placeholder="务必填写与学生订单一样的手机号" autocomplete="off" />
+      <label class="m-label" for="f-campus">校区 <i id="req-campus" hidden>*</i></label>
+      <div id="campus-wrap"></div>
+      <button class="m-btn m-btn--primary" id="issue-btn" type="button">发一枚码</button>
+      <p class="m-error" id="issue-error" hidden></p>
+    </section>
+
+    <section class="m-card" id="log-card" hidden>
+      <div class="m-card-head">
+        <h2 class="m-card-title">最近发码</h2>
+        <button class="m-ghost-btn" id="log-refresh" type="button">刷新</button>
+      </div>
+      <ul class="m-log" id="log-list"></ul>
+    </section>
+
+    <p class="m-foot">智学内部抽奖 · 发码台</p>
+  </main>
+
+  <div class="m-sheet" id="sheet" hidden>
+    <div class="m-sheet-mask" data-close></div>
+    <div class="m-sheet-card" id="sheet-card"></div>
+  </div>
+
+  <div class="m-toast" id="toast" hidden></div>
+
+  <script type="module" src="/js/m.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>兼容性自检</title>
+<style>
+  /* 故意不用任何 CSS 变量 / grid，只用最基础的东西，老浏览器也能显示 */
+  body { margin: 0; padding: 14px; background: #f7f3eb; color: #2b2117; font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 15px; line-height: 1.7; }
+  h1 { margin: 0 0 10px; font-size: 19px; }
+  .box { background: #ffffff; border: 1px solid #e2d6c0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+  .row { border-bottom: 1px solid #eee5d6; padding: 6px 0; }
+  .row:last-child { border-bottom: 0; }
+  .k { color: #8a7f6d; font-size: 13px; }
+  .v { font-weight: bold; word-break: break-all; }
+  .ok { color: #1f7a3f; }
+  .no { color: #a63b2a; }
+  .swatch { display: inline-block; width: 16px; height: 16px; background: #c9a05c; vertical-align: middle; border: 1px solid #a9772f; margin-right: 6px; }
+  .flex { display: -webkit-box; display: -ms-flexbox; display: flex; }
+  .flex > div { -webkit-box-flex: 1; -ms-flex: 1; flex: 1; background: #efe3cf; border: 1px solid #d8c8ab; padding: 8px; margin-right: 6px; text-align: center; }
+  .flex > div:last-child { margin-right: 0; }
+</style>
+</head>
+<body>
+  <h1>广告机兼容性自检</h1>
+  <div class="box">
+    <div class="row"><span class="k">如果这块背景是米色、标题是黑色，说明基础 CSS 正常</span></div>
+    <div class="row"><span class="swatch"></span>金色方块能显示 → 背景色正常</div>
+  </div>
+
+  <div class="box flex">
+    <div>左</div><div>中</div><div>右</div>
+  </div>
+
+  <div class="box" id="report">正在检测…</div>
+
+  <p class="k" style="font-size:12px">把这一页拍下来发给我，就能确定广告机该用哪个版本。</p>
+
+<script>
+(function () {
+  var lines = [];
+  function add(k, v, ok) {
+    lines.push('<div class="row"><span class="k">' + k + '</span><br><span class="v ' + (ok === true ? 'ok' : ok === false ? 'no' : '') + '">' + v + '</span></div>');
+  }
+  function test(name, fn) {
+    var ok = false;
+    try { ok = fn(); } catch (e) { ok = false; }
+    add(name, ok ? '支持 ✓' : '不支持 ✗', ok);
+    return ok;
+  }
+
+  add('浏览器标识', String(navigator.userAgent || '未知'));
+  add('屏幕', window.screen.width + ' × ' + window.screen.height + '（像素比 ' + (window.devicePixelRatio || 1) + '）');
+
+  var cssVar = false;
+  try { cssVar = window.CSS && CSS.supports && CSS.supports('color', 'var(--x)'); } catch (e) { cssVar = false; }
+  add('CSS 变量 var(--x)', cssVar ? '支持 ✓' : '不支持 ✗（那就只能用老式写法）', cssVar);
+
+  test('CSS flex 布局', function () {
+    var d = document.createElement('div');
+    d.style.display = 'flex';
+    return d.style.display === 'flex';
+  });
+
+  var hasFetch = typeof window.fetch === 'function';
+  add('fetch / XHR', (hasFetch ? 'fetch ✓' : 'fetch ✗') + ' · ' + (window.XMLHttpRequest ? 'XHR ✓' : 'XHR ✗'), hasFetch);
+  add('Promise', typeof window.Promise === 'function' ? '支持 ✓' : '不支持 ✗', typeof window.Promise === 'function');
+  add('ES 模块 script type=module', 'noModule' in document.createElement('script') ? '支持 ✓' : '不支持 ✗', 'noModule' in document.createElement('script'));
+  add('箭头函数 / let / const', (function () { try { eval('var f = (a) => a; let b = 1; const c = 2; return f(1) === 1;'); return true; } catch (e) { return false; } })() ? '支持 ✓' : '不支持 ✗', null);
+  add('async / await', (function () { try { eval('(async function(){})'); return true; } catch (e) { return false; } })() ? '支持 ✓' : '不支持 ✗', null);
+  add('模板字符串', (function () { try { eval('var s = `x`; return s === "x";'); return true; } catch (e) { return false; } })() ? '支持 ✓' : '不支持 ✗', null);
+  add('localStorage', (function () { try { window.localStorage.setItem('__t', '1'); window.localStorage.removeItem('__t'); return true; } catch (e) { return false; } })() ? '可用 ✓' : '不可用 ✗', null);
+  add('页面协议', location.protocol + ' // ' + location.host, null);
+
+  var el = document.getElementById('report');
+  if (el) { el.innerHTML = lines.join(''); }
+})();
+</script>
+</body>
+</html>

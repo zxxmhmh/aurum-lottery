@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f4efe5" />
+<title>抽奖码开奖 · 智学内部抽奖</title>
+<meta name="description" content="输入抽奖码，立即开奖。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0B10'/%3E%3Ctext x='32' y='45' font-family='Songti SC,SimSun,serif' font-size='34' fill='%23D9B77C' text-anchor='middle'%3E%E6%99%BA%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="redeem-body">
+  <div class="redeem-glow" aria-hidden="true"></div>
+
+  <main class="redeem">
+    <header class="redeem-head">
+      <span class="brand-mark">智</span>
+      <div class="redeem-brand">
+        <span class="brand-en">ZHIXUE</span>
+        <span class="brand-cn">内部抽奖</span>
+      </div>
+    </header>
+
+    <p class="redeem-event is-hidden" id="event-name">本次抽奖</p>
+
+    <div class="redeem-quota is-hidden" id="quota">
+      <div class="quota-line">
+        <span class="quota-dot"></span>
+        <span class="quota-text" id="quota-text">仅剩 — 份 · 抽完即止</span>
+        <span class="quota-num" id="quota-value">— / —</span>
+      </div>
+      <div class="quota-bar"><i id="quota-fill"></i></div>
+    </div>
+
+    <section class="redeem-card" id="card">
+      <div class="redeem-state" id="state-form">
+        <div class="eyebrow">Lucky draw</div>
+        <h1 class="redeem-title">打开你的礼物</h1>
+        <p class="redeem-sub">输入门店发给你的 6 位抽奖码，领取属于你的那一份（不用输开头的 ZX-）。</p>
+
+        <form class="redeem-form" id="redeem-form" novalidate>
+          <label class="redeem-label" for="code">抽奖码 / CODE</label>
+          <input class="redeem-input" id="code" name="code" placeholder="输入 6 位抽奖码" inputmode="text"
+                 autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="16" />
+
+          <div class="redeem-tail is-hidden" id="phone-wrap">
+            <label class="redeem-label" for="phone">登记手机号</label>
+            <input class="redeem-input redeem-input--tail" id="phone" name="phone" inputmode="numeric"
+                   autocomplete="tel" maxlength="11" placeholder="11 位手机号" />
+          </div>
+
+          <button class="btn btn--gold redeem-submit" id="submit" type="submit">开 奖</button>
+        </form>
+
+        <p class="redeem-hint" id="hint">一码一次 · 请勿转发给他人</p>
+      </div>
+
+      <div class="redeem-state is-hidden" id="state-loading">
+        <div class="redeem-roll">
+          <div class="redeem-roll-ring"></div>
+          <div class="redeem-roll-core">
+            <span class="eyebrow" id="roll-level">正在揭晓</span>
+            <b class="redeem-roll-name" id="roll-name">……</b>
+          </div>
+        </div>
+        <p class="redeem-loading-text">正在开奖，请稍候</p>
+      </div>
+
+      <div class="redeem-state is-hidden" id="state-result">
+        <div class="eyebrow" id="result-level">奖项</div>
+        <div class="redeem-prize-img is-hidden" id="result-image"><img alt="奖品" /></div>
+        <div class="redeem-prize" id="result-name">奖品</div>
+        <div class="redeem-value is-hidden" id="result-value">价值</div>
+        <p class="redeem-sub" id="result-activity"></p>
+
+        <div class="redeem-divider"></div>
+
+        <div class="redeem-code-row">
+          <span>抽奖码</span>
+          <b id="result-code">ZX-XXXX</b>
+        </div>
+        <div class="redeem-code-row">
+          <span>开奖时间</span>
+          <b id="result-time">—</b>
+        </div>
+        <div class="redeem-code-row is-hidden" id="result-holder-row">
+          <span>姓名</span>
+          <b id="result-holder">—</b>
+        </div>
+        <div class="redeem-code-row is-hidden" id="result-phone-row">
+          <span>手机号</span>
+          <b id="result-phone">—</b>
+        </div>
+
+        <p class="redeem-note">请出示本页面到门店前台领取奖品</p>
+        <button class="btn btn--gold redeem-submit" id="save-card" type="button">保存领奖图</button>
+        <button class="btn btn--ghost redeem-submit" id="again" type="button">换一个码</button>
+      </div>
+    </section>
+
+    <footer class="redeem-foot">
+      <span>ZHIXUE LOTTERY</span>
+      <span>奖品以门店实物为准</span>
+    </footer>
+  </main>
+
+  <canvas id="fx" class="fx" aria-hidden="true"></canvas>
+  <script type="module" src="/js/redeem.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title">
+  <title id="title">概念C 台阶Z · 外框方案一：实心方印 + 白色台阶Z（白文）</title>
+  <!-- 外框 16..240 rx20；内部台阶Z 墨迹 160×160（x48..208, y48..208），四周净空 32。
+       横带厚 32，三级台阶各 32，踏面宽 96、逐级左移 32 —— 全部 32 网格。
+       Z 作为负空间（白文）：fill-rule=evenodd -->
+  <path fill="#FFFFFF" fill-rule="evenodd"
+        d="M36 16 H220 A20 20 0 0 1 240 36 V220 A20 20 0 0 1 220 240 H36 A20 20 0 0 1 16 220 V36 A20 20 0 0 1 36 16 Z
+           M48 48 H208 V112 H176 V144 H144 V176 H208 V208 H48 V176 H80 V144 H112 V112 H144 V80 H48 Z"/>
+</svg>

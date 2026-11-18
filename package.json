@@ -1,0 +1,14 @@
+{
+  "name": "aurum-lottery",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
+  "type": "module",
+  "description": "AURUM 鎏金抽奖系统 — 账号权限 + 名单 / 概率 / 抽奖码",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}

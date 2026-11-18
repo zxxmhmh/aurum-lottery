@@ -1,0 +1,23 @@
+# 依赖
+node_modules/
+
+# 运行时数据（含真实学员信息，绝不提交）
+data/
+*.tgz
+
+# 截图与临时文件
+shots/
+.tmp/
+*.log
+
+# 内部运维脚本（对接第三方广告机后台，不随项目开源）
+tools/ad-browser.mjs
+tools/ad-eval.mjs
+tools/ad-publish-lottery.mjs
+
+# 视频工程与渲染产物（体积大，且含演示数据副本，单独管理）
+video/
+
+# 系统
+.DS_Store
+Thumbs.db
