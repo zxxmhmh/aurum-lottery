@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { db, persist, ROOT } from './db.js';
+import { db, persist, ROOT, backupNow } from './db.js';
 import {
   ALL_PERMISSIONS,
   PERMISSIONS,
@@ -1814,6 +1814,54 @@ def('DELETE', '/api/users/:id', async (ctx) => {
   destroyUserSessions(target.id);
   persist();
   return { ok: true, id: target.id };
+});
+
+/* -------------------------------------------------------------- 数据备份 */
+
+const BACKUP_NAME_RE = /^db-\d{8}-\d{6}-[a-z0-9_]+\.json$/;
+
+function backupDir() {
+  return path.join(ROOT, 'data', 'backups');
+}
+
+function listBackups() {
+  const dir = backupDir();
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter((name) => BACKUP_NAME_RE.test(name))
+    .map((name) => {
+      const full = path.join(dir, name);
+      const stat = fs.statSync(full);
+      return { name, size: stat.size, at: stat.mtimeMs };
+    })
+    .sort((a, b) => b.at - a.at);
+}
+
+def('GET', '/api/system/backups', async (ctx) => {
+  const user = requireUser(ctx.req);
+  requirePermission(user, 'backup.manage');
+  return { backups: listBackups().slice(0, 30) };
+});
+
+def('POST', '/api/system/backups', async (ctx) => {
+  const user = requireUser(ctx.req);
+  requirePermission(user, 'backup.manage');
+  const file = backupNow('manual');
+  if (!file) throw new HttpError(500, '备份生成失败', 'backup_failed');
+  const stat = fs.statSync(file);
+  return { backup: { name: path.basename(file), size: stat.size, at: stat.mtimeMs } };
+});
+
+// 返回快照内容（约 170KB），前端拼成 Blob 下载，避免改动响应管线的二进制支持
+def('GET', '/api/system/backups/:name', async (ctx) => {
+  const user = requireUser(ctx.req);
+  requirePermission(user, 'backup.manage');
+  const name = String(ctx.params.name || '');
+  if (!BACKUP_NAME_RE.test(name)) throw badRequest('备份文件名不合法');
+  const full = path.join(backupDir(), name);
+  if (!fs.existsSync(full)) throw notFound('备份不存在');
+  return { name, content: fs.readFileSync(full, 'utf8') };
 });
 
 /* -------------------------------------------------------------- dispatch */

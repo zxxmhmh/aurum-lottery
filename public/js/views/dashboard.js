@@ -11,6 +11,7 @@ import {
   fmtNumber,
   countUp,
   initials,
+  toast,
 } from '../ui.js';
 
 const MODE_ART = {
@@ -203,6 +204,25 @@ export async function renderDashboard(host, ctx) {
                 : ''}
             </div>
           </div>
+
+          ${ctx.can('backup.manage')
+            ? html`
+                <div class="panel" style="margin-top:18px">
+                  <div class="panel-head">
+                    <div class="panel-title">数据备份<span class="en">Backup</span></div>
+                    <span class="badge badge--mute" id="backup-count">—</span>
+                  </div>
+                  <div class="panel-body" style="padding-top:14px;display:flex;flex-direction:column;gap:10px">
+                    <div class="feed-meta" id="backup-meta">读取备份列表…</div>
+                    <div style="display:flex;gap:8px">
+                      <button class="btn btn--ghost btn--sm" id="backup-now" style="flex:1">立即备份</button>
+                      <button class="btn btn--quiet btn--sm" id="backup-dl" style="flex:1" disabled>下载最新</button>
+                    </div>
+                    <div class="feed-meta" style="opacity:.72">每小时自动打包一份到服务器，保留 7 天</div>
+                  </div>
+                </div>
+              `
+            : ''}
         </aside>
       </div>
     </div>
@@ -226,4 +246,72 @@ export async function renderDashboard(host, ctx) {
     card.addEventListener('click', () => ctx.navigate(`#/stage?act=${card.dataset.act}`));
     card.style.cursor = 'pointer';
   });
+
+  /* ---- 数据备份 ---- */
+  if (ctx.can('backup.manage')) {
+    const countEl = host.querySelector('#backup-count');
+    const metaEl = host.querySelector('#backup-meta');
+    const nowBtn = host.querySelector('#backup-now');
+    const dlBtn = host.querySelector('#backup-dl');
+    let latest = null;
+
+    const describe = (b) =>
+      b
+        ? `${fmtDate(b.at)} ${fmtClock(b.at)} · ${(b.size / 1024).toFixed(0)} KB`
+        : '还没有备份';
+
+    const loadBackups = async () => {
+      try {
+        const data = await api.get('/system/backups');
+        const list = data.backups || [];
+        latest = list[0] || null;
+        if (countEl) countEl.textContent = `${list.length} 份`;
+        if (metaEl) metaEl.textContent = describe(latest);
+        if (dlBtn) dlBtn.disabled = !latest;
+      } catch (error) {
+        if (metaEl) metaEl.textContent = error.message || '读取失败';
+      }
+    };
+
+    nowBtn?.addEventListener('click', async () => {
+      nowBtn.disabled = true;
+      nowBtn.textContent = '备份中…';
+      try {
+        const data = await api.post('/system/backups');
+        toast(`已生成备份 ${data.backup.name}`, 'ok');
+        await loadBackups();
+      } catch (error) {
+        toast(error.message || '备份失败', 'err');
+      } finally {
+        nowBtn.disabled = false;
+        nowBtn.textContent = '立即备份';
+      }
+    });
+
+    dlBtn?.addEventListener('click', async () => {
+      if (!latest) return;
+      dlBtn.disabled = true;
+      dlBtn.textContent = '准备中…';
+      try {
+        const data = await api.get(`/system/backups/${encodeURIComponent(latest.name)}`);
+        const blob = new Blob([data.content], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = latest.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        toast('已开始下载备份', 'ok');
+      } catch (error) {
+        toast(error.message || '下载失败', 'err');
+      } finally {
+        dlBtn.disabled = !latest;
+        dlBtn.textContent = '下载最新';
+      }
+    });
+
+    loadBackups();
+  }
 }

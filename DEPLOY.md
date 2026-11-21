@@ -117,14 +117,38 @@ server {
 | `data/uploads/` | 奖项样品图 | 有图就跟着备份 |
 | `data/cards/` | 微信保存领奖图的临时文件 | 自动清理两天前 |
 
-**每天再额外冷备一次**（拷到别的盘/U盘）：
+### 三层备份
 
-```bat
-:: 把 <项目盘>、<备份盘> 换成实际盘符，例如 D: / E:
-xcopy /E /I /Y "<项目盘>:\aurum-lottery\data" "<备份盘>:\lottery-backup\%date:~0,4%%date:~5,2%%date:~8,2%"
+| 层 | 频率 | 位置 | 覆盖 | 保留 |
+| --- | --- | --- | --- | --- |
+| 应用内快照 | 每 6 小时 | `data/backups/` | `db.json` | 30 份 |
+| **服务器打包** | **每小时** | `/srv/lottery-backups/` | `db.json` + `uploads/` | 7 天 |
+| **本机冷备** | 每天 21:30 | `E:\lottery-backups\` | 同上（整包） | 30 天 |
+
+服务器打包由系统 cron 触发（`/etc/cron.d/lottery-backup` → `/usr/local/bin/lottery-backup.sh`），脚本会校验 tar 可读、体积不小于 20KB，失败不落盘并记 `/var/log/lottery-backup.log`。
+
+本机冷备由 Windows 计划任务 `LotteryBackupPull` 拉取（`tools/pull-backups.ps1`），安装：`powershell -File tools\install-backup-task.ps1`。
+
+### 后台手动备份
+
+后台「总览」右侧有 **数据备份** 卡片（需要 `backup.manage` 权限，默认只有超级管理员）：
+
+- **立即备份**：在 `data/backups/` 生成一份 `db-…-manual.json`
+- **下载最新**：把最新快照下载到本机（约 170KB）
+
+### 恢复演练（建议每季度做一次）
+
+```bash
+# 在服务器上：取最新整包，解到一个临时目录并起一个临时实例验证
+RT=/tmp/rt; rm -rf $RT; mkdir -p $RT/data
+cp -r /srv/lottery/server /srv/lottery/public /srv/lottery/package.json $RT/
+tar -xzf "$(ls -t /srv/lottery-backups/lottery-*.tar.gz | head -1)" -C $RT/data
+cd $RT && PORT=5199 HOST=127.0.0.1 sudo -u admin /opt/node/bin/node server/index.js &
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5199/    # 期望 200
+node -e 'const d=require("/tmp/rt/data/db.json");console.log(d.activities.length,d.records.length)'
 ```
 
-**恢复**：停服务 → 用备份覆盖 `data/db.json` → 启动。
+**真正恢复**：停服务 → 用备份里的 `db.json` 覆盖 `data/db.json`（必要时连 `uploads/` 一起还原）→ 启动。
 
 ## 7. 上线当天流程
 

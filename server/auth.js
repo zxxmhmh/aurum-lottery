@@ -13,6 +13,7 @@ export const PERMISSIONS = [
   { key: 'quota.reset', label: '重置名额与抽奖码', group: '抽奖' },
   { key: 'account.view', label: '查看账号', group: '账号' },
   { key: 'account.manage', label: '账号与权限管理', group: '账号' },
+  { key: 'backup.manage', label: '数据备份与下载', group: '账号' },
 ];
 
 export const ALL_PERMISSIONS = PERMISSIONS.map((p) => p.key);
@@ -28,7 +29,7 @@ export const ROLES = [
     key: 'admin',
     label: '管理员',
     desc: '可以管理活动、奖项与抽奖，不能管理账号',
-    permissions: ALL_PERMISSIONS.filter((p) => p !== 'account.manage'),
+    permissions: ALL_PERMISSIONS.filter((p) => p !== 'account.manage' && p !== 'backup.manage'),
   },
   {
     key: 'operator',
